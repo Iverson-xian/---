@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "graph.h"
-
+Pathmatirx P;
+ShortPathTable D;
 void menu(void) {
     printf("1. 查询所有节点名称及编号\n");
     printf("2. 增加节点\n");
@@ -56,8 +57,66 @@ void ShortestPath_Floyd(MGraph G) {
 	int v, w, k;
 	for (v = 0; v < G.numVertexs; ++v) {
 		for (w = 0; w < G.numVertexs; ++w) {
-			
+			D[v][w] = G.arc[v][w];
+            P[v][w] = w;
 		}
+        for (k = 0; k < G.numVertexs; i++) {
+            for (v = 0; v < G.numVertexs; v++) {
+                for (w = 0; w < G.numVertexs; w++) {
+                    if  (D[v][w] > D[v][k] + D[k][w]) {
+                        D[v][w] = D[v][k] + D[k][w];
+                        P[v][w] = P[v][k];
+                    }
+                }
+            }
+        }
 	}
 }
 
+void ShortPath(MGraph G) {
+    int i, j, k;
+    int start = 0, end = 0;
+    char vex1[100], vex2[100];
+    printf("请输入起始节点的编号或名称");
+    while (1) {
+        scanf("%s", vex1);
+        if (strlen(vex1)) {
+            start = 0;
+            for (i = 0; i < strlen(vex1); i++) {
+                start *= 10;
+                start += vex1[i] - '0';
+            }
+        } else
+            start = findVex(G, vex1);
+        if (start < 1 || start >= G.numVertexs) {
+            printf("输入有误，请重新输入：");
+            continue;
+        } else
+            break;
+    }
+    printf("请输入终止节点的编号或者名称：");
+    while (1) {
+        scanf("%s", vex2);
+        if (strlen(vex2)) {
+            end = 0;
+            for (i = 0; i < strlen(vex2); i++) {
+                end *= 10;
+                end += vex2[i] - '0';
+            }
+        } else
+            end = findVex(G, vex2);
+        if (end < 1 || end >= G.numVertexs) {
+            printf("输入有误，请重新输入：");
+            continue;
+        } else
+            break;
+    }
+    printf("%s-->%s 距离：%d\n", G.vex[start].name, G.vex[i].name, D[start][end]);
+    k = P[start][end];
+    printf("最短路径：%s", G.vex[start].name);
+    while (k != end) {
+        printf("-->%s", G.vex[k].name);
+        k = P[k][end];
+    }
+    printf("->%s\n", G.vex[end].name);
+}

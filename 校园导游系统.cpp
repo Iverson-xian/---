@@ -1,13 +1,13 @@
 #include "graph.h"
 
-Pathmatirx P;
-ShortPathTable D;
+
 
 
 int main(void) {
     int x;
     MGraph G;
     CreateMGraph(&G);
+    ShortestPath_Floyd(G);
     do {
     	menu();
         printf("«Î—°‘Ò(0~9)£∫");
