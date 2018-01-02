@@ -1,8 +1,6 @@
 #include "graph.h"
-
-
-
-
+Pathmatirx P;
+ShortPathTable D;
 int main(void) {
     int x;
     MGraph G;
@@ -19,13 +17,22 @@ int main(void) {
         if (x != 0) {
         	switch (x) {
         		case 1: SelectAllNode(G);
+        				getchar();
         				break;
-        		case 2: ShortPath(G);
+        		case 2:
+                        MiniSpanTree(G);
+                        break;
+        		case 7: ShortPath(G);
+        				getchar();
+        				break;
+                case 8: TwoNodeAllPath(G);
+                        break;
 			}
 		}
     } while (x != 0);
 
     return 0;
 }
+
 
 
