@@ -34,6 +34,16 @@ typedef struct {
 typedef int Pathmatirx[MAXVEX][MAXVEX];
 typedef int ShortPathTable[MAXVEX][MAXVEX];
 
+// 队列的定义
+typedef int QElemenType;
+typedef struct QNode {
+    QElemenType data;
+    struct QNode * next;
+} QNode, *QueuePtr;
+
+typedef struct {
+    QueuePtr front, rear;
+} LinkQueue;
 
 void menu(void);
 void CreateMGraph(MGraph * G);
@@ -43,7 +53,13 @@ void ShortestPath_Floyd(MGraph G);
 void ShortPath(MGraph G);
 void MiniSpanTree(MGraph G);
 void MapToList(MGraph G, GraphAdjList * LG);
-void TwoNodeAllPath(MGraph G);
+void TwoNodeAllPath(GraphAdjList LG, MGraph G);
 void FindAllPath(GraphAdjList LG, int start, int end, int path[], int d);
 void InputTwoNode(int * start, int * end, MGraph G);
+int InitQueue(LinkQueue * Q);
+int QueueEmpty(LinkQueue Q);
+int DeQueue(LinkQueue * Q, QElemenType * e);
+int EnQueue(LinkQueue * Q, QElemenType e);
+void findMinNode(GraphAdjList LG, int start, int end, int path[], int d);
+void TowNodeMinNode(GraphAdjList LG ,MGraph G);
 

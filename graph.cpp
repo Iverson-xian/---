@@ -4,6 +4,8 @@
 #include "graph.h"
 Pathmatirx P;
 ShortPathTable D;
+int minpath[MAXVEX];
+int pathLength;
 int visited[MAXVEX];
 void menu(void) {
     printf("1. 查询所有节点名称及编号\n");
@@ -41,6 +43,7 @@ void CreateMGraph(MGraph * G) {
         G->arc[x][y] = w;
 		G->arc[y][x] = w;
     }
+    fclose(fp);
 }
 
 int findVex(MGraph G, char vex[]) {
@@ -192,7 +195,7 @@ void MapToList(MGraph G, GraphAdjList * LG) {
 }
 
 void FindAllPath(GraphAdjList LG, int start, int end, int path[], int d) {
-//	printf("%d\n", start);
+	// printf("%d\n", start);
     int w, i;
     EdgeNode * p;
     visited[start] = 1;
@@ -205,6 +208,8 @@ void FindAllPath(GraphAdjList LG, int start, int end, int path[], int d) {
         }
         printf("%s", LG.AdjList[path[d]].data.name);
         printf("\n");
+        visited[start] = 0;
+        return;
     }
     p = LG.AdjList[start].firstedge;
     while (p != NULL) {
@@ -218,23 +223,113 @@ void FindAllPath(GraphAdjList LG, int start, int end, int path[], int d) {
     visited[start] = 0;
 }
 
-void TwoNodeAllPath(MGraph G) {
-    GraphAdjList LG;
-    int i, start, end;
-    MapToList(G, &LG);
-    for (i = 0; i < G.numVertexs; i++) {
-        printf("%s ", LG.AdjList[i].data.name);
-        EdgeNode * p = LG.AdjList[i].firstedge;
-        while (p != NULL) {
-            printf("%d %d\t", p->adjvex, p->weight);
-            p = p->next;
-        }
-        printf("\n");
-    }
+void TwoNodeAllPath(GraphAdjList LG, MGraph G){
+    int i, j, start, end, count = 0;
     for (i = 0; i < MAXVEX; i++)
         visited[i] = 0;
     InputTwoNode(&start, &end, G);
+    printf("%d %d\n", start, end);
     int path[MAXVEX] = {0};
-    FindAllPath(LG, start, end , path, -1);
+    FindAllPath(LG, start, end, path, -1);
 }
 
+void findMinNode(GraphAdjList LG, int start, int end, int path[], int d) {
+    int w, i;
+    EdgeNode * p;
+    visited[start] = 1;
+    d++;
+    path[d] = start;
+    if (start == end && d >= 1) {
+        // for (i = 0; i < d; i++) {
+        //     printf("%s->", LG.AdjList[path[i]].data.name);
+        // }
+        // printf("%s", LG.AdjList[path[d]].data.name);
+        // printf("\n");
+        if (d < pathLength) {
+            pathLength = d;
+            for (i = 0; i < d; i++) {
+                minpath[i] = path[i];
+            }
+        }
+        visited[start] = 0;
+        return;
+    }
+    p = LG.AdjList[start].firstedge;
+    while (p != NULL) {
+        w = p->adjvex;
+//        printf("%daaaa%d\n",visited[w], w);
+        if (visited[w] == 0) {
+            findMinNode(LG, w, end, path, d);
+        }
+        p = p->next;
+    }
+    visited[start] = 0;
+}
+void TowNodeMinNode(GraphAdjList LG ,MGraph G) {
+    int i, j, start, end;
+    for (i = 0; i < MAXVEX; i++) {
+        visited[i] = 0;
+        minpath[i] = 0;
+    }
+    InputTwoNode(&start, &end, G);
+    // printf("%d %d\n", start, end);
+    pathLength = INFINITY;
+    int path[MAXVEX] = {0};
+    findMinNode(LG, start, end, path, -1);
+    // printf("%d\n", pathLength);
+    for (i = 0; i < pathLength; i++) {
+        printf("%s-->", G.vex[minpath[i]].name);
+    }
+    printf("%s\n", G.vex[end].name);
+}
+
+// 队列的操作
+int EnQueue(LinkQueue *Q, QElemenType  e) {
+    QueuePtr s = (QueuePtr) malloc(sizeof(QNode));
+    if (s == NULL) {
+        exit(1);
+    }
+    s->data = e;
+    s->next = NULL;
+    Q->rear->next = s;
+    Q->rear = s;
+    if (Q->front->next != NULL)
+        printf("bb\n");
+    return 1;
+}
+
+int DeQueue(LinkQueue *Q, QElemenType * e) {
+    QueuePtr p;
+    if (Q->front == Q->rear)
+        return 0;
+    p = Q->front->next;
+    *e = p->data;
+    Q->front->next = p->next;
+    if (Q->rear == p) {
+        Q->rear = Q->front;
+    }
+    
+    free(p);
+    return 1;
+}
+
+
+
+int InitQueue(LinkQueue * Q)
+{
+    //构造一个空的对列Q
+    Q->front = (QueuePtr)malloc(sizeof(QNode));
+    //Q.front = Q.rear;
+    if(!Q->front)
+        exit(1);
+    Q->front->next = NULL;
+    Q->rear = Q->front;
+    return 1;
+}
+
+int QueueEmpty(LinkQueue Q) {
+    if(Q.front->next == NULL)
+        return 1;
+    else
+        return 0;
+}

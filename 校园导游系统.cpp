@@ -3,7 +3,9 @@
 int main(void) {
     int x;
     MGraph G;
+    GraphAdjList LG;
     CreateMGraph(&G);
+    MapToList(G, &LG);
     ShortestPath_Floyd(G);
     do {
     	menu();
@@ -16,18 +18,21 @@ int main(void) {
         if (x != 0) {
         	switch (x) {
         		case 1: SelectAllNode(G);
-        				getchar();
-        				break;
+        			getchar();
+        			break;
         		case 2:
                         MiniSpanTree(G);
                         break;
-        		case 7: ShortPath(G);
-        				getchar();
-        				break;
-                case 8: TwoNodeAllPath(G);
+                case 6:
+                        TowNodeMinNode(LG, G);
                         break;
-			}
-		}
+        		case 7: ShortPath(G);
+        			getchar();
+        			break;
+                case 8: TwoNodeAllPath(LG, G);
+                        break;
+	        }
+	}
     } while (x != 0);
 
     return 0;
