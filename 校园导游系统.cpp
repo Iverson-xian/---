@@ -1,6 +1,5 @@
+#include <stdio.h>
 #include "graph.h"
-Pathmatirx P;
-ShortPathTable D;
 int main(void) {
     int x;
     MGraph G;
@@ -33,6 +32,4 @@ int main(void) {
 
     return 0;
 }
-
-
 

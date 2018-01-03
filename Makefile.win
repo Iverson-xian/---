@@ -27,5 +27,5 @@ $(BIN): $(OBJ)
 校园导游系统.o: 校园导游系统.cpp
 	$(CPP) -c 校园导游系统.cpp -o 校园导游系统.o $(CXXFLAGS)
 
-graph.o: graph.c
-	$(CPP) -c graph.c -o graph.o $(CXXFLAGS)
+graph.o: graph.cpp
+	$(CPP) -c graph.cpp -o graph.o $(CXXFLAGS)

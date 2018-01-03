@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "graph.h"
-extern Pathmatirx P;
-extern ShortPathTable D;
+Pathmatirx P;
+ShortPathTable D;
 int visited[MAXVEX];
 void menu(void) {
     printf("1. 查询所有节点名称及编号\n");
@@ -94,7 +94,7 @@ void InputTwoNode(int * start, int * end, MGraph G) {
                 *start *= 10;
                 *start += vex1[i] - '0';
             }
-            *start--; 
+            (*start)--; 
         } else
             *start = findVex(G, vex1);
         if (*start < 0 || *start >= G.numVertexs) {
@@ -109,10 +109,10 @@ void InputTwoNode(int * start, int * end, MGraph G) {
         if (strlen(vex2) <= 2) {
             *end = 0;
             for (i = 0; i < strlen(vex2); i++) {
-                *end *= 10;
+                (*end) *= 10;
                 *end += vex2[i] - '0';
             }
-            *end--;
+            (*end)--;
         } else
             *end = findVex(G, vex2);
         if (*end < 0 || *end >= G.numVertexs) {
@@ -183,6 +183,7 @@ void MapToList(MGraph G, GraphAdjList * LG) {
             if (G.arc[i][j] != INFINITY && G.arc[i][j] != 0) {
                 p = (EdgeNode *) malloc(sizeof(EdgeNode));
                 p->adjvex = j;
+                p->weight = G.arc[i][j];
                 p->next = LG->AdjList[i].firstedge;
                 LG->AdjList[i].firstedge = p;
             }
@@ -190,34 +191,50 @@ void MapToList(MGraph G, GraphAdjList * LG) {
     }
 }
 
-void FindAllPath(MGraph G, GraphAdjList LG, int start, int end, int path[], int d) {
+void FindAllPath(GraphAdjList LG, int start, int end, int path[], int d) {
+//	printf("%d\n", start);
     int w, i;
     EdgeNode * p;
     visited[start] = 1;
     d++;
     path[d] = start;
     if (start == end && d >= 1) {
-        printf(" ");
+        printf("   ");
         for (i = 0; i < d; i++) {
-            printf("%s->", G.vex[path[i]].name);
+            printf("%s->", LG.AdjList[path[i]].data.name);
         }
-        printf("%s", G.vex[path[d]].name);
+        printf("%s", LG.AdjList[path[d]].data.name);
         printf("\n");
     }
     p = LG.AdjList[start].firstedge;
     while (p != NULL) {
         w = p->adjvex;
-        if (visited[w] == 0)
-            FindAllPath(G, LG, w, end, path, d);
+//        printf("%daaaa%d\n",visited[w], w);
+        if (visited[w] == 0) {
+            FindAllPath(LG, w, end, path, d);
+        }
+        p = p->next;
     }
+    visited[start] = 0;
 }
 
 void TwoNodeAllPath(MGraph G) {
     GraphAdjList LG;
     int i, start, end;
     MapToList(G, &LG);
+    for (i = 0; i < G.numVertexs; i++) {
+        printf("%s ", LG.AdjList[i].data.name);
+        EdgeNode * p = LG.AdjList[i].firstedge;
+        while (p != NULL) {
+            printf("%d %d\t", p->adjvex, p->weight);
+            p = p->next;
+        }
+        printf("\n");
+    }
     for (i = 0; i < MAXVEX; i++)
         visited[i] = 0;
-    InputTwoNode(&startm, &end, G);
-    FindAllPath(G, LG, start, end ,-1);
+    InputTwoNode(&start, &end, G);
+    int path[MAXVEX] = {0};
+    FindAllPath(LG, start, end , path, -1);
 }
+
