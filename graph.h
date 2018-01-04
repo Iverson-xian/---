@@ -62,4 +62,13 @@ int DeQueue(LinkQueue * Q, QElemenType * e);
 int EnQueue(LinkQueue * Q, QElemenType e);
 void findMinNode(GraphAdjList LG, int start, int end, int path[], int d);
 void TowNodeMinNode(GraphAdjList LG ,MGraph G);
-
+void Manager(GraphAdjList * LG, MGraph * G);
+void Manager_menu();
+void updateNode(GraphAdjList * LG, MGraph * G);
+void updateNode(GraphAdjList * LG, MGraph * G);
+void WriteToFile(MGraph G);
+void destoryGraphAdjList(GraphAdjList * LG);
+void addNode (GraphAdjList * LG, MGraph * G);
+void updateEdge(GraphAdjList * LG, MGraph * G);
+void deleteNode(GraphAdjList * LG, MGraph * G);
+void deleteEdge(GraphAdjList * LG, MGraph * G);

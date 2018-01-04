@@ -9,13 +9,11 @@ int pathLength;
 int visited[MAXVEX];
 void menu(void) {
     printf("1. 查询所有节点名称及编号\n");
-    printf("2. 增加节点\n");
-    printf("3. 增加线路\n");
-    printf("4. 删除节点\n");
-    printf("5. 删除线路\n");
-    printf("6. 查询两个节点之间的最短简单路径\n");
-    printf("7. 查询任意两个地点之间的最佳访问线路\n");
-    printf("8. 查询两个地点之间的所有简单路径\n");
+    printf("2. 最佳布网方案（最小生成树）\n");
+    printf("3. 查询两个节点之间的最短简单路径\n");
+    printf("4. 查询任意两个地点之间的最佳访问线路\n");
+    printf("5. 查询两个地点之间的所有简单路径\n");
+    printf("6. 管理\n");
     printf("0. 退出\n\n");
 }
 
@@ -154,14 +152,14 @@ void MiniSpanTree(MGraph G) {
         min = INFINITY;
         j = 1;
         k = 0;
-        while (j < G.numEdges) {
+        while (j < G.numVertexs) {
             if (lowcost[j] != 0 && lowcost[j] < min) {
                 min =lowcost[j];
                 k = j;
             }
             j++;
         }
-        printf("(%d %d)", adjvex[k], k);
+        printf("(%s, %s, %d)", G.vex[adjvex[k]].name, G.vex[k].name, G.arc[adjvex[k]][k]);
         lowcost[k] = 0;
         for (j = 1; j < G.numVertexs; j++) {
             if (lowcost[j] != 0 && G.arc[k][j] < lowcost[j]) {
@@ -332,4 +330,228 @@ int QueueEmpty(LinkQueue Q) {
         return 1;
     else
         return 0;
+}
+
+void Manager(GraphAdjList * LG, MGraph * G) {
+    FILE * fp;
+    int count = 1, x;
+    char password[100];
+    char input_pass[100];
+    if ((fp = fopen("password.txt", "r")) == NULL) {
+        printf("文件无法打开，授权错误!\n");
+        return;
+    }
+    fscanf(fp, "%s", password);
+    printf("请输入密码：");
+    scanf("%s", input_pass);
+    if (strcmp(password, input_pass) == 0) {
+        printf("授权成功！\n");
+    } else {
+        while (count <= 3) {
+            printf("密码错误，请重新出入(3次机会):");
+            scanf("%s", input_pass);
+            if (strcmp(password, input_pass) == 0) {
+                printf("授权成功！\n");
+                break;
+            } else {
+                printf("第%d次错误!\n", count);
+                count++;
+            }
+            if (count > 3) {
+                printf("您输入的密码错误超过3次，将自动退出管理!\n");
+            }
+        }
+    }
+    do{
+        Manager_menu();
+        printf("请选择：");
+        scanf("%d", &x);
+        while (x < 0 || x > 6) {
+            printf("请输入有效的选项：");
+            scanf("%d", &x);
+        }
+        switch(x) { 
+            case 5:updateNode(LG, G);
+                    break;
+            case 1:addNode(LG, G);
+                    break;
+            case 2:deleteNode(LG, G);
+                    break;
+            case 3:updateEdge(LG, G);
+                    break;
+            case 4:deleteEdge(LG, G);
+                    break;
+        }
+    } while (x != 0);
+}
+
+void Manager_menu() {
+    printf("1. 添加节点\n");
+    printf("2. 删除节点\n");
+    printf("3. 添加或更新线路线路\n");
+    printf("4. 删除线路\n");
+    printf("5. 更新节点信息\n");
+    printf("0. 退出\n\n");
+}
+
+void updateNode(GraphAdjList * LG, MGraph * G) {
+    int target, i, x;
+    char vex[100];
+    printf("请输入需要更改的节点的名称或者编号:");
+    while (1) {
+        scanf("%s", vex);
+        if (strlen(vex) <= 2) {
+            target = 0;
+            for (i = 0; i < strlen(vex); i++) {
+                target *= 10;
+                target += vex[i] - '0';
+            }
+            target--; 
+        } else
+            target = findVex(*G, vex);
+        if (target < 0 || target >= G->numVertexs) {
+            printf("输入有误，请重新输入：");
+            continue;
+        } else
+            break;
+    }
+    printf("1. 名称\n2. 介绍\n0. 退出\n");
+    printf("请选择你需要更改的名称或者介绍：");
+    scanf("%d", &x);
+    while (x > 2 || x < 0) {
+        printf("请输入有效的选项：");
+        scanf("%d", &x);
+    }
+    if (x == 0)
+        return;
+    else if (x == 1) {
+        printf("请输入新的节点名称:");
+        scanf("%s", G->vex[target].name);
+    } else if (x == 2) {
+        printf("请输入新的节点介绍:");
+        scanf("%s", G->vex[target].introducation);
+    }
+    LG->AdjList[target].data = G->vex[target];
+    WriteToFile(*G);
+}
+
+void WriteToFile(MGraph G) {
+    FILE * fp;
+    int i, j;
+    if ((fp = fopen("校园导游系统.txt", "w+")) == NULL) {
+        printf("文件打开失败!");
+        exit(1);
+    }
+    fprintf(fp, "%d %d\n", G.numVertexs, G.numEdges);
+    for (i = 0; i < G.numVertexs; i++) {
+        fprintf(fp, "%d %s %s\n", G.vex[i].No, G.vex[i].name, G.vex[i].introducation);
+    }
+    for (i = 0; i < G.numVertexs; i++) {
+        for (j = 0; j <= i; j++) {
+            if (G.arc[i][j] == INFINITY || G.arc[i][j] == 0)
+                continue;
+            fprintf(fp, "%s %s %d\n", G.vex[i].name, G.vex[j].name, G.arc[i][j]);
+
+        }
+    }
+    fclose(fp);
+}
+
+void addNode (GraphAdjList * LG, MGraph * G) {
+    VerType vex;
+    printf("请输入要添加的节点名称：");
+    scanf("%s", vex.name);
+    printf("请输入节点的介绍：");
+    scanf("%s", vex.introducation);
+    vex.No = G->numVertexs + 1;
+    // G->numVertexs += 1;
+    // printf("%d\n", G->numVertexs);
+    // G->vex[G->numVertexs ].No = vex.No;
+    // strcpy(G->vex[G->numVertexs].name, vex.name);
+    // strcpy(G->vex[G->numVertexs].introducation, vex.introducation);
+    // G->vex[G->numVertexs].introducation = vex.introducation;
+    // SelectAllNode(*G);
+    G->vex[G->numVertexs] = vex;
+    G->numVertexs++;
+    WriteToFile(*G);
+    CreateMGraph(G);
+    destoryGraphAdjList(LG);
+    MapToList(*G, LG);
+
+}
+
+void destoryGraphAdjList(GraphAdjList * LG) {
+    int i;
+    EdgeNode * p, *q;
+    for (i = 0; i < LG->numVertexs; i++) {
+        p = LG->AdjList[i].firstedge;
+        while (p != NULL) {
+            q = p;
+            p = q->next;
+            free(q);
+        }
+        LG->AdjList[i].firstedge = NULL;
+    }
+}
+
+void updateEdge(GraphAdjList * LG, MGraph * G) {
+    int start, end, w;
+    InputTwoNode(&start, &end, *G);
+    printf("请输入新的权值：");
+    scanf("%d", &w);
+    G->arc[start][end] = w;
+    G->arc[end][start] = w;
+    WriteToFile(*G);
+    destoryGraphAdjList(LG);
+    MapToList(*G, LG);
+}
+
+void deleteNode(GraphAdjList * LG, MGraph * G) {
+    
+    int target, i;
+    char vex[100];
+    printf("请输入需要删除的节点的名称或者编号:");
+    while (1) {
+        scanf("%s", vex);
+        if (strlen(vex) <= 2) {
+            target = 0;
+            for (i = 0; i < strlen(vex); i++) {
+                target *= 10;
+                target += vex[i] - '0';
+            }
+            target--; 
+        } else
+            target = findVex(*G, vex);
+        if (target < 0 || target >= G->numVertexs) {
+            printf("输入有误，请重新输入：");
+            continue;
+        } else
+            break;
+    }
+    for (i = 0; i < G->numVertexs; i++) {
+        if (G->arc[target][i] != INFINITY && G->arc[target][i] != 0) {
+            G->arc[target][i] = INFINITY;
+            G->arc[i][target] = INFINITY;
+        }
+    }
+    for (i = target; i < G->numVertexs - 1; i++) {
+        G->vex[i] = G->vex[i+1];
+        G->vex[i].No = i + 1;
+        G->numVertexs--;
+    }
+    WriteToFile(*G);
+    CreateMGraph(G);
+    destoryGraphAdjList(LG);
+    MapToList(*G, LG);
+}
+
+void deleteEdge(GraphAdjList * LG, MGraph * G) {
+    int start, end, w;
+    InputTwoNode(&start, &end, *G);
+    if (start != end)
+    G->arc[start][end] = INFINITY;
+    G->arc[end][start] = INFINITY;
+    WriteToFile(*G);
+    destoryGraphAdjList(LG);
+    MapToList(*G, LG);
 }

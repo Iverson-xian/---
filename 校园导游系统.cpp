@@ -9,9 +9,9 @@ int main(void) {
     ShortestPath_Floyd(G);
     do {
     	menu();
-        printf("请选择(0~9)：");
+        printf("请选择(0~6)：");
         scanf("%d", &x);
-        while (x > 9 || x < 0) {
+        while (x > 6 || x < 0) {
             printf("请输入有效的选项：");
             scanf("%d", &x);
         }
@@ -23,13 +23,15 @@ int main(void) {
         		case 2:
                         MiniSpanTree(G);
                         break;
-                case 6:
+                case 3:
                         TowNodeMinNode(LG, G);
                         break;
-        		case 7: ShortPath(G);
+        		case 4: ShortPath(G);
         			getchar();
         			break;
-                case 8: TwoNodeAllPath(LG, G);
+                case 5: TwoNodeAllPath(LG, G);
+                        break;
+                case 6: Manager(&LG, &G);
                         break;
 	        }
 	}
@@ -37,4 +39,3 @@ int main(void) {
 
     return 0;
 }
-
